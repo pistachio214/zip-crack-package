@@ -9,11 +9,16 @@ use std::{fs, process};
 pub struct FileConfig {
     pub title: String,      // 文件名
     pub origin_url: String, // 目标地址
+    pub extension: String,  // 文件类型
 }
 
 impl FileConfig {
-    fn new(title: String, origin_url: String) -> FileConfig {
-        FileConfig { title, origin_url }
+    fn new(title: String, origin_url: String, extension: String) -> FileConfig {
+        FileConfig {
+            title,
+            origin_url,
+            extension,
+        }
     }
 }
 
@@ -90,7 +95,7 @@ fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
                 }
 
                 num
-            },
+            }
             Err(_) => {
                 eprintln!(
                     "\n[Error] => {} 请重新输入序号 {}:",
@@ -137,12 +142,17 @@ fn show_compression_table(lines: &Vec<FileConfig>) {
 
     table.set_format(format);
     // 设置标题
-    table.set_titles(row!["ID", "Title", "origin url"]);
+    table.set_titles(row!["ID", "Title", "Extension", "origin url"]);
 
     //添加行
     if !lines.is_empty() {
         for (index, line) in lines.iter().enumerate() {
-            table.add_row(row![(index + 1), line.title, line.origin_url]);
+            table.add_row(row![
+                (index + 1),
+                line.title,
+                line.origin_url,
+                line.extension
+            ]);
         }
     }
 
@@ -197,14 +207,31 @@ fn get_current_compression_package() -> Vec<FileConfig> {
             let mut origin_url = current_dir.display().to_string();
             origin_url.push_str(&file_name.to_string());
 
+            // 获取文件扩展名
+            let extension = match path.extension() {
+                Some(extension) => extension.to_string_lossy(),
+                None => continue,
+            };
+
+            // 判断是否为压缩文件
+            if !is_target_string_case_insensitive(&extension.to_string()) {
+                continue;
+            }
+
             lines.push(FileConfig::new(
                 format!("📄 {}", file_name.to_string()),
+                extension.to_string(),
                 origin_url,
             ));
         }
     }
 
     lines
+}
+
+fn is_target_string_case_insensitive(input: &str) -> bool {
+    let lower_input = input.to_lowercase();
+    matches!(lower_input.as_str(), "zip" | "rar" | "7z" | "tar" | "gz")
 }
 
 fn error_action() {
