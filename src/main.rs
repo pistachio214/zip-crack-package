@@ -2,8 +2,11 @@ use clap::{ArgMatches, Command};
 use colored::Colorize;
 use prettytable::{Table, format, row};
 use serde::{Deserialize, Serialize};
+use std::fs::File;
 use std::io::stdin;
-use std::{fs, process};
+use std::path::Path;
+use std::{fs, io, process};
+use zip::ZipArchive;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FileConfig {
@@ -65,7 +68,69 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
 
     if !&lines.is_empty() {
         let file_config = select_compression(&lines);
-        println!("{:?}", file_config)
+        println!("{:?}", file_config);
+
+        let extract_to =
+            String::from("/Users/songyangpeng/workspace/rust/zip-crack-package/output/");
+        decompress_zip(&file_config.origin_url, &extract_to);
+    }
+}
+
+// zip 解压
+fn decompress_zip(input_path: &str, output_path: &str) {
+    let file = match File::open(input_path) {
+        Ok(file) => file,
+        Err(_) => {
+            eprintln!("\n[Error] => {}", "目标文件定位失败!".red(),);
+            process::exit(0);
+        }
+    };
+
+    let mut archive = match ZipArchive::new(file) {
+        Ok(archive) => archive,
+        Err(_) => {
+            eprintln!("\n[Error] => {}", "zip打开文件失败!".red(),);
+            process::exit(0);
+        }
+    };
+
+    // todo 创建目标目录,外加以文件名为文件夹
+    fs::create_dir_all(output_path).unwrap();
+
+    for i in 0..archive.len() {
+        let mut file = match archive.by_index(i) {
+            Ok(file) => file,
+            Err(e) => {
+                //TODO 此处判定是否需要密码输入
+                eprintln!("\n[Error] => {}", String::from(e.to_string()).red());
+                process::exit(0);
+            }
+        };
+
+        let out_path = Path::new(output_path).join(file.mangled_name());
+
+        // 如果是文件
+        println!("解压文件: {}", out_path.display());
+
+        // 确保父目录存在
+        if let Some(parent) = out_path.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent).unwrap();
+            }
+        }
+
+        // 创建并写入文件
+        let mut out_file = File::create(&out_path).unwrap();
+        io::copy(&mut file, &mut out_file).unwrap();
+
+        // 在 Unix 系统上设置文件权限
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            if let Some(mode) = file.unix_mode() {
+                fs::set_permissions(&out_path, fs::Permissions::from_mode(mode)).unwrap();
+            }
+        }
     }
 }
 
@@ -153,8 +218,8 @@ fn show_compression_table(lines: &Vec<FileConfig>) {
                 (index + 1),
                 line.title,
                 line.size,
-                line.origin_url,
-                line.extension
+                line.extension,
+                line.origin_url
             ]);
         }
     }
@@ -208,6 +273,7 @@ fn get_current_compression_package() -> Vec<FileConfig> {
 
         if metadata.is_file() {
             let mut origin_url = current_dir.display().to_string();
+            origin_url.push_str("/");
             origin_url.push_str(&file_name.to_string());
 
             // 获取文件扩展名
@@ -225,9 +291,9 @@ fn get_current_compression_package() -> Vec<FileConfig> {
 
             lines.push(FileConfig::new(
                 format!("📄 {}", file_name.to_string()),
-                extension.to_string(),
-                format_size(size),
                 origin_url,
+                format_size(size),
+                extension.to_string(),
             ));
         }
     }
