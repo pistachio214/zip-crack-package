@@ -1,0 +1,17 @@
+[package]
+name = "zip-crack-package"
+version = "0.1.0"
+edition = "2024"
+
+description = "zip crack package"
+license = "MIT"
+authors = ["pengsy <songyang410@outlook.com>"]
+#documentation = "https://docs.rs/crate/aspentool"
+#repository = "https://github.com/pistachio214/aspen-toolbox"
+keywords = ["zip", "crack", "package"]
+
+[dependencies]
+clap = "4.5.51"
+colored = "3.0.0"
+prettytable-rs = "0.10.0"
+serde = { version = "1.0.228", features = ["derive"] }
