@@ -9,14 +9,16 @@ use std::{fs, process};
 pub struct FileConfig {
     pub title: String,      // 文件名
     pub origin_url: String, // 目标地址
+    pub size: String,       // 文件大小
     pub extension: String,  // 文件类型
 }
 
 impl FileConfig {
-    fn new(title: String, origin_url: String, extension: String) -> FileConfig {
+    fn new(title: String, origin_url: String, size: String, extension: String) -> FileConfig {
         FileConfig {
             title,
             origin_url,
+            size,
             extension,
         }
     }
@@ -68,7 +70,7 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
 }
 
 fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
-    println!("请输入 {} 选择要破解的压缩包:", "序号".green());
+    println!("请输入 {} 选择要解压的文件:", "序号".green());
     let num;
     loop {
         let mut guess = String::new();
@@ -142,7 +144,7 @@ fn show_compression_table(lines: &Vec<FileConfig>) {
 
     table.set_format(format);
     // 设置标题
-    table.set_titles(row!["ID", "Title", "Extension", "origin url"]);
+    table.set_titles(row!["ID", "Name", "Size", "Extension", "Origin Url"]);
 
     //添加行
     if !lines.is_empty() {
@@ -150,6 +152,7 @@ fn show_compression_table(lines: &Vec<FileConfig>) {
             table.add_row(row![
                 (index + 1),
                 line.title,
+                line.size,
                 line.origin_url,
                 line.extension
             ]);
@@ -218,15 +221,32 @@ fn get_current_compression_package() -> Vec<FileConfig> {
                 continue;
             }
 
+            let size = metadata.len();
+
             lines.push(FileConfig::new(
                 format!("📄 {}", file_name.to_string()),
                 extension.to_string(),
+                format_size(size),
                 origin_url,
             ));
         }
     }
 
     lines
+}
+
+// 字节与其他单位的换算
+fn format_size(bytes: u64) -> String {
+    const UNITS: [&str; 6] = ["B", "KB", "MB", "GB", "TB", "PB"];
+    let mut size = bytes as f64;
+    let mut unit_index = 0;
+
+    while size >= 1024.0 && unit_index < UNITS.len() - 1 {
+        size /= 1024.0;
+        unit_index += 1;
+    }
+
+    format!("{:.2} {}", size, UNITS[unit_index])
 }
 
 fn is_target_string_case_insensitive(input: &str) -> bool {
