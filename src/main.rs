@@ -10,17 +10,25 @@ use zip::ZipArchive;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FileConfig {
-    pub title: String,      // 文件名
-    pub origin_url: String, // 目标地址
-    pub size: String,       // 文件大小
-    pub extension: String,  // 文件类型
+    pub name: String,      // 文件名
+    pub path: String,      // 目标地址
+    pub dir_name: String,  // 解压目标文件夹
+    pub size: String,      // 文件大小
+    pub extension: String, // 文件类型
 }
 
 impl FileConfig {
-    fn new(title: String, origin_url: String, size: String, extension: String) -> FileConfig {
+    fn new(
+        name: String,
+        path: String,
+        dir_name: String,
+        size: String,
+        extension: String,
+    ) -> FileConfig {
         FileConfig {
-            title,
-            origin_url,
+            name,
+            path,
+            dir_name,
             size,
             extension,
         }
@@ -70,9 +78,12 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
         let file_config = select_compression(&lines);
         println!("{:?}", file_config);
 
-        let extract_to =
-            String::from("/Users/songyangpeng/workspace/rust/zip-crack-package/output/");
-        decompress_zip(&file_config.origin_url, &extract_to);
+        // 目标目录,以文件名为文件夹
+        let extract_to = format!(
+            "{}{}/",
+            "./output/", file_config.dir_name
+        );
+        decompress_zip(&file_config.path, &extract_to);
     }
 }
 
@@ -94,8 +105,15 @@ fn decompress_zip(input_path: &str, output_path: &str) {
         }
     };
 
-    // todo 创建目标目录,外加以文件名为文件夹
-    fs::create_dir_all(output_path).unwrap();
+    match fs::create_dir_all(output_path) {
+        Ok(_) => {
+            eprintln!("\n[Success] => 目标目录 {},创建成功!", output_path.green());
+        }
+        Err(e) => {
+            eprintln!("\n[Error] => {}", e.to_string().red());
+            process::exit(0);
+        }
+    }
 
     for i in 0..archive.len() {
         let mut file = match archive.by_index(i) {
@@ -108,9 +126,6 @@ fn decompress_zip(input_path: &str, output_path: &str) {
         };
 
         let out_path = Path::new(output_path).join(file.mangled_name());
-
-        // 如果是文件
-        println!("解压文件: {}", out_path.display());
 
         // 确保父目录存在
         if let Some(parent) = out_path.parent() {
@@ -216,10 +231,10 @@ fn show_compression_table(lines: &Vec<FileConfig>) {
         for (index, line) in lines.iter().enumerate() {
             table.add_row(row![
                 (index + 1),
-                line.title,
+                line.name,
                 line.size,
                 line.extension,
-                line.origin_url
+                line.path
             ]);
         }
     }
@@ -289,9 +304,13 @@ fn get_current_compression_package() -> Vec<FileConfig> {
 
             let size = metadata.len();
 
+            // 将文件名去掉后缀名,用作解压时的文件夹
+            let dir_name = get_clean_filename_without_extension(&origin_url);
+
             lines.push(FileConfig::new(
                 format!("📄 {}", file_name.to_string()),
                 origin_url,
+                dir_name,
                 format_size(size),
                 extension.to_string(),
             ));
@@ -299,6 +318,33 @@ fn get_current_compression_package() -> Vec<FileConfig> {
     }
 
     lines
+}
+
+// 获取不带后缀名的文件名称
+fn get_clean_filename_without_extension(path: &str) -> String {
+    let path_obj = Path::new(path);
+
+    // 获取纯文件名（不含路径）
+    let filename = match path_obj.file_name() {
+        Some(name) => name.to_string_lossy().into_owned(),
+        None => return path.to_string(), // 如果无法获取文件名，返回原路径
+    };
+
+    // 查找最后一个点号的位置
+    if let Some(last_dot) = filename.rfind('.') {
+        // 排除以下情况：
+        // 1. 点号在开头（隐藏文件）
+        // 2. 点号是最后一个字符
+        // 3. 点号前面还是点号（特殊文件）
+        if last_dot > 0 && last_dot < filename.len() - 1 {
+            // 检查点号前面不是点号
+            if !filename[..last_dot].ends_with('.') {
+                return filename[..last_dot].to_string();
+            }
+        }
+    }
+
+    filename
 }
 
 // 字节与其他单位的换算
