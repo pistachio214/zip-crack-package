@@ -24,7 +24,7 @@ fn scan_min_and_max_length() -> PasswordLengthConfig {
                 if num < 1 {
                     eprintln!(
                         "\n{} => {} {}",
-                        "[ ⚠️  Warning]".yellow(),
+                        "[ ⚠️  Warning ]".yellow(),
                         "最小长度必须大于 0 !".yellow(),
                         "重新输入最小密码长度:".green()
                     );
@@ -35,7 +35,7 @@ fn scan_min_and_max_length() -> PasswordLengthConfig {
             Err(_) => {
                 eprintln!(
                     "\n{} => {} {}",
-                    "[ ⚠️  Warning]".yellow(),
+                    "[ ⚠️  Warning ]".yellow(),
                     "只能输入合法的整数!".yellow(),
                     "重新输入最小密码长度:".green()
                 );
@@ -58,7 +58,7 @@ fn scan_min_and_max_length() -> PasswordLengthConfig {
                 if num < min_num {
                     eprintln!(
                         "\n{} => {} {}",
-                        "[ ⚠️  Warning]".yellow(),
+                        "[ ⚠️  Warning ]".yellow(),
                         "最大长度不能比最小长度小!".yellow(),
                         "重新输入最大密码长度:".green()
                     );
@@ -69,7 +69,7 @@ fn scan_min_and_max_length() -> PasswordLengthConfig {
             Err(_) => {
                 eprintln!(
                     "\n{} => {} {}",
-                    "[ ⚠️  Warning]".yellow(),
+                    "[ ⚠️  Warning ]".yellow(),
                     "只能输入合法的整数!".yellow(),
                     "重新输入最大密码长度:".green()
                 );
@@ -91,7 +91,7 @@ pub fn try_extract_zip(input_path: &str, output_path: &str) {
         Err(_) => {
             eprintln!(
                 "\n{} => {}",
-                "[ ❌  Error]".red(),
+                "[ ❌  Error ]".red(),
                 "目标文件定位失败!".red(),
             );
             process::exit(0);
@@ -101,7 +101,7 @@ pub fn try_extract_zip(input_path: &str, output_path: &str) {
     let mut archive = match ZipArchive::new(file) {
         Ok(archive) => archive,
         Err(_) => {
-            eprintln!("\n{} => {}", "[ ❌  Error]".red(), "zip打开文件失败!".red(),);
+            eprintln!("\n{} => {}", "[ ❌  Error ]".red(), "zip打开文件失败!".red(),);
             process::exit(0);
         }
     };
@@ -115,7 +115,7 @@ pub fn try_extract_zip(input_path: &str, output_path: &str) {
             );
         }
         Err(e) => {
-            eprintln!("\n{} => {}", "[ ❌  Error]".red(), e.to_string().red());
+            eprintln!("\n{} => {}", "[ ❌  Error ]".red(), e.to_string().red());
             process::exit(0);
         }
     }
@@ -128,7 +128,7 @@ pub fn try_extract_zip(input_path: &str, output_path: &str) {
                 process::exit(0);
             }
             Err(e) => {
-                eprintln!("\n{} => {}", "[ ❌  Error]".red(), e.to_string().red());
+                eprintln!("\n{} => {}", "[ ❌  Error ]".red(), e.to_string().red());
                 process::exit(0);
             }
         };
@@ -151,13 +151,13 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
     let password_length_config = scan_min_and_max_length();
 
-    eprintln!("\n{} => 开始智能破解密码...\n", "[ 🔑  Trying]".green());
+    eprintln!("\n{} => 开始智能破解密码...\n", "[ 🔑  Trying ]".green());
 
     let mut num = 0;
 
     eprintln!(
         "{} => {}\n",
-        "[ 🔑  阶段1]".green(),
+        "[ 🔑  阶段1 ]".green(),
         "加载历史密码记录...".green()
     );
     eprintln!(
@@ -168,7 +168,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
     eprintln!(
         "{} => {}\n",
-        "[ 🔑  阶段2]".green(),
+        "[ 🔑  阶段2 ]".green(),
         "尝试常用密码列表...".green()
     );
     eprintln!(
@@ -179,7 +179,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
     eprintln!(
         "{} => {}\n",
-        "[ 🔑  阶段3]".green(),
+        "[ 🔑  阶段3 ]".green(),
         "尝试简单数字组合...".green()
     );
     let current_year = Utc::now().year();
@@ -193,7 +193,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
         for i in 0..archive.len() {
             let message = format!(
-                "[ 🔑  Trying] => 正在尝试密码: {}  [总尝试: {} 个数字组合]",
+                "[ 🔑  Trying ] => 正在尝试密码: {}  [总尝试: {} 个数字组合]",
                 year, num
             );
             write(&message);
@@ -217,7 +217,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
                     break;
                 }
                 Err(e) => {
-                    eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
+                    eprintln!("\n{} => {:?}", "[ ❌  Error ]".red(), e);
                     break;
                 }
             };
@@ -237,7 +237,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
     eprintln!(
         "\n\n{} => {}\n",
-        "[ 🔑  阶段4]".green(),
+        "[ 🔑  阶段4 ]".green(),
         "尝试智能暴力破解...".green()
     );
     // 重新计算个数
@@ -252,7 +252,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
         num += 1;
         for i in 0..archive.len() {
             let message = format!(
-                "[ 🔑  Trying] => 正在尝试密码: {}  [总尝试: {} 个密码组合]",
+                "[ 🔑  Trying ] => 正在尝试密码: {}  [总尝试: {} 个密码组合]",
                 pwd, num
             );
             write(&message);
@@ -276,7 +276,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
                     break;
                 }
                 Err(e) => {
-                    eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
+                    eprintln!("\n{} => {:?}", "[ ❌  Error ]".red(), e);
                     break;
                 }
             };
@@ -317,7 +317,7 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
             Err(_) => {
                 eprintln!(
                     "\n{} => {}",
-                    "[ ❌  Error]".red(),
+                    "[ ❌  Error ]".red(),
                     "目标目录创建失败！".red()
                 );
                 process::exit(0);
@@ -330,10 +330,10 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
             Err(e) => {
                 eprintln!(
                     "\n{} => {}",
-                    "[ ❌  Error]".red(),
+                    "[ ❌  Error ]".red(),
                     "目录中创建解压文件失败！".red()
                 );
-                eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
+                eprintln!("\n{} => {:?}", "[ ❌  Error ]".red(), e);
                 process::exit(0);
             }
         };
@@ -342,16 +342,16 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
             Err(e) => {
                 eprintln!(
                     "\n{} => {}",
-                    "[ ❌  Error]".red(),
+                    "[ ❌  Error ]".red(),
                     "写入解压文件失败！".red()
                 );
 
                 eprintln!(
                     "\n{} => {:?}",
-                    "[ ❌  Error]".red(),
+                    "[ ❌  Error ]".red(),
                     mut_file.mangled_name()
                 );
-                eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
+                eprintln!("\n{} => {:?}", "[ ❌  Error ]".red(), e);
                 process::exit(0);
             }
         }
@@ -366,7 +366,7 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
                     Err(_) => {
                         eprintln!(
                             "\n{} => {}",
-                            "[ ❌  Error]".red(),
+                            "[ ❌  Error ]".red(),
                             "设置文件权限失败！".red()
                         );
                         process::exit(0);

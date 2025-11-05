@@ -62,7 +62,7 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
             &_ => {
                 eprintln!(
                     "\n{} => {} 类型暂时不支持,请期待后续更新～ \n",
-                    "[ ❌  Error]".red(),
+                    "[ ❌  Error ]".red(),
                     file_config.extension.red()
                 );
             }
@@ -71,7 +71,7 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
 }
 
 fn error_action() {
-    eprintln!("\n{} => {} \n", "[ ❌  Error]".red(), "非法指令".red());
+    eprintln!("\n{} => {} \n", "[ ❌  Error ]".red(), "非法指令".red());
     process::exit(0);
 }
 

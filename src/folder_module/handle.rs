@@ -29,7 +29,7 @@ pub fn get_current_compression_package() -> Vec<FileConfig> {
     let current_dir = match std::env::current_dir() {
         Ok(dir) => dir,
         Err(_) => {
-            eprintln!("\n{} => {}\n", "[ ❌  Error]".red(), "当前目录不合法！".red());
+            eprintln!("\n{} => {}\n", "[ ❌  Error ]".red(), "当前目录不合法！".red());
             process::exit(0);
         }
     };
@@ -37,7 +37,7 @@ pub fn get_current_compression_package() -> Vec<FileConfig> {
     let entries = match fs::read_dir(&current_dir) {
         Ok(entries) => entries,
         Err(_) => {
-            eprintln!("\n{} => {}\n", "[ ❌  Error]".red(), "读取当前目录失败！".red());
+            eprintln!("\n{} => {}\n", "[ ❌  Error ]".red(), "读取当前目录失败！".red());
             process::exit(0);
         }
     };
@@ -180,7 +180,7 @@ pub fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
                 if num < 1 {
                     eprintln!(
                         "\n{} => {} 请重新输入序号 {}:",
-                        "[ ❌  Error]".red(),
+                        "[ ❌  Error ]".red(),
                         "序号必须大于 0 !".red(),
                         "序号".green()
                     );
@@ -190,7 +190,7 @@ pub fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
                 if num > lines.len() as i32 {
                     eprintln!(
                         "\n{} => {} 请重新输入序号 {}:",
-                        "[ ❌  Error]".red(),
+                        "[ ❌  Error ]".red(),
                         "您输入的序号超过了当前目录的文件数!".red(),
                         "序号".green()
                     );
@@ -202,7 +202,7 @@ pub fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
             Err(_) => {
                 eprintln!(
                     "\n{} => {} 请重新输入序号 {}:",
-                    "[ ❌  Error]".red(),
+                    "[ ❌  Error ]".red(),
                     "序号只能输入合法的整数!".red(),
                     "序号".green()
                 );
@@ -218,7 +218,7 @@ pub fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
     let config = match lines.get(index as usize) {
         Some(config) => config,
         _ => {
-            eprintln!("\n{} => {}", "[ ❌  Error]".red(), "获取压缩文件失败!".red(),);
+            eprintln!("\n{} => {}", "[ ❌  Error ]".red(), "获取压缩文件失败!".red(),);
             process::exit(0);
         }
     };
