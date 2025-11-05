@@ -54,7 +54,6 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
 
     if !&lines.is_empty() {
         let file_config = select_compression(&lines);
-        println!("{:?}", file_config);
 
         // 目标目录,以文件名为文件夹
         let extract_to = format!("{}{}/", "./output/", file_config.dir_name);
