@@ -1,5 +1,6 @@
 /// 冲突处理策略
 #[derive(Clone, Copy)]
+#[allow(dead_code)]
 pub enum ParentFixStrategy {
     /// 报错返回 Err（默认保守策略）
     Error,

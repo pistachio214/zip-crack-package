@@ -1,5 +1,5 @@
 use crate::module::PasswordLengthConfig;
-use crate::pasword_module::iter::PasswordIter;
+use crate::password_module::iter::PasswordIter;
 use crate::write;
 use crate::zip_module::module::ParentFixStrategy;
 use chrono::prelude::*;
@@ -101,7 +101,11 @@ pub fn try_extract_zip(input_path: &str, output_path: &str) {
     let mut archive = match ZipArchive::new(file) {
         Ok(archive) => archive,
         Err(_) => {
-            eprintln!("\n{} => {}", "[ ❌  Error ]".red(), "zip打开文件失败!".red(),);
+            eprintln!(
+                "\n{} => {}",
+                "[ ❌  Error ]".red(),
+                "zip打开文件失败!".red(),
+            );
             process::exit(0);
         }
     };
@@ -155,6 +159,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
     let mut num = 0;
 
+
     eprintln!(
         "{} => {}\n",
         "[ 🔑  阶段1 ]".green(),
@@ -188,6 +193,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
         .collect();
 
     for year in &years {
+        let mut count = 0;
         let mut current_password = "";
         num += 1;
 
@@ -204,6 +210,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
                     let mut buffer = Vec::new();
                     match file.read_to_end(&mut buffer) {
                         Ok(_) => {
+                            count += 1;
                             current_password = year;
                             file
                         }
@@ -225,7 +232,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
             handle_dir_parent(output_path, &mut mut_file);
         }
 
-        if !"".eq(current_password) {
+        if !"".eq(current_password) && count == archive.len() {
             eprintln!(
                 "\n\n{} => 破解成功！密码是: {}\n",
                 "[ ✅  Success ]".green(),
@@ -248,6 +255,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
     );
 
     for pwd in iter {
+        let mut count = 0;
         let mut current_password = "";
         num += 1;
         for i in 0..archive.len() {
@@ -263,6 +271,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
                     let mut buffer = Vec::new();
                     match file.read_to_end(&mut buffer) {
                         Ok(_) => {
+                            count += 1;
                             current_password = &pwd;
                             file
                         }
@@ -284,7 +293,7 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
             handle_dir_parent(output_path, &mut mut_file);
         }
 
-        if !"".eq(current_password) {
+        if !"".eq(current_password) && count == archive.len() {
             eprintln!(
                 "\n\n{} => 破解成功！密码是: {}\n",
                 "[ ✅  Success ]".green(),
@@ -383,17 +392,6 @@ fn ensure_dir(path: &Path) -> io::Result<()> {
         fs::remove_file(path)?;
     }
     fs::create_dir_all(path)
-}
-
-fn ensure_directory(path: &Path) -> io::Result<()> {
-    if path.exists() {
-        if path.is_file() {
-            // 删除错误的文件
-            fs::remove_file(path)?;
-        }
-    }
-    fs::create_dir_all(path)?;
-    Ok(())
 }
 
 pub fn ensure_parent_dir(path: &Path, strategy: ParentFixStrategy) -> io::Result<()> {

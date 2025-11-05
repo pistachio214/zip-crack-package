@@ -2,7 +2,7 @@ use std::io::Write;
 mod folder_module;
 mod module;
 mod zip_module;
-mod pasword_module;
+mod password_module;
 
 use crate::folder_module::handle::{
     get_current_compression_package, select_compression, show_compression_table,
@@ -10,7 +10,6 @@ use crate::folder_module::handle::{
 use crate::zip_module::handle::try_extract_zip;
 use clap::{ArgMatches, Command};
 use colored::Colorize;
-use std::time::Duration;
 use std::{io, process};
 
 fn main() {
