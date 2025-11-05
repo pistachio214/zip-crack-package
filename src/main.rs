@@ -1,15 +1,17 @@
+use std::io::Write;
 mod folder_module;
 mod module;
 mod zip_module;
-
-use clap::{ArgMatches, Command};
-use colored::Colorize;
-use std::process;
+mod pasword_module;
 
 use crate::folder_module::handle::{
     get_current_compression_package, select_compression, show_compression_table,
 };
-use crate::zip_module::handle::decompress_zip;
+use crate::zip_module::handle::try_extract_zip;
+use clap::{ArgMatches, Command};
+use colored::Colorize;
+use std::time::Duration;
+use std::{io, process};
 
 fn main() {
     // 构建命令详情
@@ -57,7 +59,7 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
         // 目标目录,以文件名为文件夹
         let extract_to = format!("{}{}/", "./output/", file_config.dir_name);
         match file_config.extension.as_str() {
-            "zip" => decompress_zip(&file_config.path, &extract_to),
+            "zip" => try_extract_zip(&file_config.path, &extract_to),
             &_ => {
                 eprintln!(
                     "\n{} => {} 类型暂时不支持,请期待后续更新～ \n",
@@ -78,4 +80,13 @@ fn error_action() {
 fn clear_terminal() {
     print!("\x1b[2J");
     print!("\x1b[H");
+}
+
+pub fn write(message: &str) {
+    let stderr = io::stderr();
+    let mut handle = stderr.lock();
+
+    write!(handle, "\r{:3}", message).unwrap();
+    handle.flush().unwrap();
+    // std::thread::sleep(Duration::from_millis(1));
 }
