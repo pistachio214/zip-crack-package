@@ -311,6 +311,12 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
         }
     };
 
+    if let Some(parent) = out_path.parent() {
+        ensure_directory(parent).unwrap_or_else(|e| {
+            eprintln!("无法准备目录 {}: {:?}", parent.display(), e);
+            process::exit(1);
+        });
+    }
     // 创建并写入文件
     let mut out_file = match File::create(&out_path) {
         Ok(file) => file,
@@ -361,6 +367,17 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
             }
         }
     }
+}
+
+fn ensure_directory(path: &Path) -> io::Result<()> {
+    if path.exists() {
+        if path.is_file() {
+            // 删除错误的文件
+            fs::remove_file(path)?;
+        }
+    }
+    fs::create_dir_all(path)?;
+    Ok(())
 }
 
 pub fn ensure_parent_dir(path: &Path, strategy: ParentFixStrategy) -> io::Result<()> {
