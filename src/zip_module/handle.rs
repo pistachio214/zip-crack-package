@@ -192,7 +192,10 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
         num += 1;
 
         for i in 0..archive.len() {
-            let message = format!("[ 🔑  Trying] => 正在尝试密码: {}  [总尝试: {} 个数字组合]", year, num);
+            let message = format!(
+                "[ 🔑  Trying] => 正在尝试密码: {}  [总尝试: {} 个数字组合]",
+                year, num
+            );
             write(&message);
 
             let mut mut_file = match archive.by_index_decrypt(i, year.as_bytes()) {
@@ -248,7 +251,10 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
         let mut current_password = "";
         num += 1;
         for i in 0..archive.len() {
-            let message = format!("[ 🔑  Trying] => 正在尝试密码: {}  [总尝试: {} 个密码组合]", pwd, num);
+            let message = format!(
+                "[ 🔑  Trying] => 正在尝试密码: {}  [总尝试: {} 个密码组合]",
+                pwd, num
+            );
             write(&message);
 
             let mut mut_file = match archive.by_index_decrypt(i, pwd.as_bytes()) {
@@ -296,77 +302,87 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 }
 
 fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
-    let out_path = Path::new(output_path).join(mut_file.mangled_name());
+    let out_path = Path::new(output_path)
+        .join(mut_file.mangled_name())
+        .canonicalize()
+        .ok()
+        .unwrap();
 
-    // 确保父目录存在
-    match ensure_parent_dir(&out_path, ParentFixStrategy::BackupFile) {
-        Ok(_) => {}
-        Err(_) => {
-            eprintln!(
-                "\n{} => {}",
-                "[ ❌  Error]".red(),
-                "目标目录创建失败！".red()
-            );
-            process::exit(0);
+    if mut_file.is_dir() {
+        ensure_dir(&out_path).unwrap();
+    } else {
+        // 确保父目录存在
+        match ensure_parent_dir(&out_path, ParentFixStrategy::BackupFile) {
+            Ok(_) => {}
+            Err(_) => {
+                eprintln!(
+                    "\n{} => {}",
+                    "[ ❌  Error]".red(),
+                    "目标目录创建失败！".red()
+                );
+                process::exit(0);
+            }
+        };
+
+        // 创建并写入文件
+        let mut out_file = match File::create(&out_path) {
+            Ok(file) => file,
+            Err(e) => {
+                eprintln!(
+                    "\n{} => {}",
+                    "[ ❌  Error]".red(),
+                    "目录中创建解压文件失败！".red()
+                );
+                eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
+                process::exit(0);
+            }
+        };
+        match io::copy(mut_file, &mut out_file) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!(
+                    "\n{} => {}",
+                    "[ ❌  Error]".red(),
+                    "写入解压文件失败！".red()
+                );
+
+                eprintln!(
+                    "\n{} => {:?}",
+                    "[ ❌  Error]".red(),
+                    mut_file.mangled_name()
+                );
+                eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
+                process::exit(0);
+            }
         }
-    };
 
-    if let Some(parent) = out_path.parent() {
-        ensure_directory(parent).unwrap_or_else(|e| {
-            eprintln!("无法准备目录 {}: {:?}", parent.display(), e);
-            process::exit(1);
-        });
-    }
-    // 创建并写入文件
-    let mut out_file = match File::create(&out_path) {
-        Ok(file) => file,
-        Err(e) => {
-            eprintln!(
-                "\n{} => {}",
-                "[ ❌  Error]".red(),
-                "目录中创建解压文件失败！".red()
-            );
-            eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
-            process::exit(0);
-        }
-    };
-    match io::copy(mut_file, &mut out_file) {
-        Ok(_) => {}
-        Err(e) => {
-            eprintln!(
-                "\n{} => {}",
-                "[ ❌  Error]".red(),
-                "写入解压文件失败！".red()
-            );
-
-            eprintln!(
-                "\n{} => {:?}",
-                "[ ❌  Error]".red(),
-                mut_file.mangled_name()
-            );
-            eprintln!("\n{} => {:?}", "[ ❌  Error]".red(), e);
-            process::exit(0);
-        }
-    }
-
-    // 在 Unix 系统上设置文件权限
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::PermissionsExt;
-        if let Some(mode) = mut_file.unix_mode() {
-            match fs::set_permissions(&out_path, fs::Permissions::from_mode(mode)) {
-                Ok(_) => {}
-                Err(_) => {
-                    eprintln!(
-                        "\n{} => {}",
-                        "[ ❌  Error]".red(),
-                        "设置文件权限失败！".red()
-                    );
-                    process::exit(0);
+        // 在 Unix 系统上设置文件权限
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            if let Some(mode) = mut_file.unix_mode() {
+                match fs::set_permissions(&out_path, fs::Permissions::from_mode(mode)) {
+                    Ok(_) => {}
+                    Err(_) => {
+                        eprintln!(
+                            "\n{} => {}",
+                            "[ ❌  Error]".red(),
+                            "设置文件权限失败！".red()
+                        );
+                        process::exit(0);
+                    }
                 }
             }
         }
     }
+}
+
+/// 若路径存在但不是目录，则删除后再创建
+fn ensure_dir(path: &Path) -> io::Result<()> {
+    if path.exists() && !path.is_dir() {
+        fs::remove_file(path)?;
+    }
+    fs::create_dir_all(path)
 }
 
 fn ensure_directory(path: &Path) -> io::Result<()> {
