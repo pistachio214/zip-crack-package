@@ -4,4 +4,7 @@
 *.zip
 *.tar
 
-output
+.DS_Store
+
+output/*
+zip_files/*

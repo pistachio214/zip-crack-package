@@ -26,10 +26,24 @@ fn format_size(bytes: u64) -> String {
 }
 
 pub fn get_current_compression_package() -> Vec<FileConfig> {
+    #[cfg(debug_assertions)]
+    let current_dir = match std::env::current_dir() {
+        Ok(dir) => dir.join("zip_files"),
+        Err(_) => {
+            eprintln!("\n{} => {}\n", "[ ❌  Error ]".red(), "当前目录不合法！".red());
+            process::exit(0);
+        }
+    };
+
+    #[cfg(not(debug_assertions))]
     let current_dir = match std::env::current_dir() {
         Ok(dir) => dir,
         Err(_) => {
-            eprintln!("\n{} => {}\n", "[ ❌  Error ]".red(), "当前目录不合法！".red());
+            eprintln!(
+                "\n{} => {}\n",
+                "[ ❌  Error ]".red(),
+                "当前目录不合法！".red()
+            );
             process::exit(0);
         }
     };
@@ -37,7 +51,11 @@ pub fn get_current_compression_package() -> Vec<FileConfig> {
     let entries = match fs::read_dir(&current_dir) {
         Ok(entries) => entries,
         Err(_) => {
-            eprintln!("\n{} => {}\n", "[ ❌  Error ]".red(), "读取当前目录失败！".red());
+            eprintln!(
+                "\n{} => {}\n",
+                "[ ❌  Error ]".red(),
+                "读取当前目录失败！".red()
+            );
             process::exit(0);
         }
     };
@@ -218,7 +236,11 @@ pub fn select_compression(lines: &Vec<FileConfig>) -> &FileConfig {
     let config = match lines.get(index as usize) {
         Some(config) => config,
         _ => {
-            eprintln!("\n{} => {}", "[ ❌  Error ]".red(), "获取压缩文件失败!".red(),);
+            eprintln!(
+                "\n{} => {}",
+                "[ ❌  Error ]".red(),
+                "获取压缩文件失败!".red(),
+            );
             process::exit(0);
         }
     };
