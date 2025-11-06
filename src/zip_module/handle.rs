@@ -159,7 +159,6 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
     let mut num = 0;
 
-
     eprintln!(
         "{} => {}\n",
         "[ 🔑  阶段1 ]".green(),
@@ -311,11 +310,13 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 }
 
 fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
-    let out_path = Path::new(output_path)
+    let out_path = match Path::new(output_path)
         .join(mut_file.mangled_name())
         .canonicalize()
-        .ok()
-        .unwrap();
+    {
+        Ok(path) => path,
+        Err(e) => Path::new(output_path).join(mut_file.mangled_name()),
+    };
 
     if mut_file.is_dir() {
         ensure_dir(&out_path).unwrap();
