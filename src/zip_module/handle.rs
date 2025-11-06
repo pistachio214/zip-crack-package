@@ -315,7 +315,7 @@ fn handle_dir_parent(output_path: &str, mut_file: &mut ZipFile<File>) {
         .canonicalize()
     {
         Ok(path) => path,
-        Err(e) => Path::new(output_path).join(mut_file.mangled_name()),
+        Err(_) => Path::new(output_path).join(mut_file.mangled_name()),
     };
 
     if mut_file.is_dir() {
