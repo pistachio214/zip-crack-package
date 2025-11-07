@@ -7,10 +7,12 @@ use colored::Colorize;
 use std::fs::File;
 use std::io::{Read, stdin};
 use std::path::Path;
+use std::time::{Duration, Instant};
 use std::{fs, io, process};
 use zip::ZipArchive;
 use zip::read::ZipFile;
 use zip::result::ZipError;
+
 
 fn scan_min_and_max_length() -> PasswordLengthConfig {
     println!("{}", "请输入最小密码长度:".green());
@@ -191,6 +193,9 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
         .map(|year| format!("{:04}", year))
         .collect();
 
+    // 获取当前时间点
+    let mut start = Instant::now();
+
     for year in &years {
         let mut count = 0;
         let mut current_password = "";
@@ -198,8 +203,8 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
 
         for i in 0..archive.len() {
             let message = format!(
-                "[ 🔑  Trying ] => 正在尝试密码: {}  [总尝试: {} 个数字组合]",
-                year, num
+                "[ 🔑  Trying ] => 正在尝试密码: {}  [ 总尝试: {} 个数字组合 ] [ 总耗时: {:?} ]",
+                year, num, &start.elapsed()
             );
             write(&message);
 
@@ -253,14 +258,17 @@ fn zip_password_decompression(input_path: &str, output_path: &str) {
         password_length_config.max as usize,
     );
 
+    // 重新获取当前时间点
+    start = Instant::now();
+
     for pwd in iter {
         let mut count = 0;
         let mut current_password = "";
         num += 1;
         for i in 0..archive.len() {
             let message = format!(
-                "[ 🔑  Trying ] => 正在尝试密码: {}  [总尝试: {} 个密码组合]",
-                pwd, num
+                "[ 🔑  Trying ] => 正在尝试密码: {}  [ 总尝试: {} 个密码组合 ] [ 总耗时: {:?} ]",
+                pwd, num, &start.elapsed()
             );
             write(&message);
 
