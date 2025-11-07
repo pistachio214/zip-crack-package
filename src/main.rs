@@ -1,15 +1,24 @@
-use std::io::Write;
 mod folder_module;
+mod gz_module;
 mod module;
-mod zip_module;
 mod password_module;
+mod rar_module;
+mod seven_module;
+mod tar_module;
+mod zip_module;
 
 use crate::folder_module::handle::{
     get_current_compression_package, select_compression, show_compression_table,
 };
+use crate::gz_module::handle::try_extract_gz;
+use crate::rar_module::handle::try_extract_rar;
+use crate::seven_module::handle::try_extract_7z;
+use crate::tar_module::handle::try_extract_tar;
 use crate::zip_module::handle::try_extract_zip;
+
 use clap::{ArgMatches, Command};
 use colored::Colorize;
+use std::io::Write;
 use std::{io, process};
 
 fn main() {
@@ -58,6 +67,10 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
         let extract_to = format!("{}{}/", "./output/", file_config.dir_name);
         match file_config.extension.as_str() {
             "zip" => try_extract_zip(&file_config.path, &extract_to),
+            "rar" => try_extract_rar(&file_config.path, &extract_to),
+            "7z" => try_extract_7z(&file_config.path, &extract_to),
+            "tar" => try_extract_tar(&file_config.path, &extract_to),
+            "gz" => try_extract_gz(&file_config.path, &extract_to),
             &_ => {
                 eprintln!(
                     "\n{} => {} 类型暂时不支持,请期待后续更新～ \n",
