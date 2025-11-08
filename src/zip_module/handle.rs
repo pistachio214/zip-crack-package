@@ -98,7 +98,7 @@ fn zip_password_decompression(input_path: &str) {
     handle_complex_number_decompression(input_path, &password_length_config);
 
     eprintln!(
-        "\n{} => {}\n",
+        "{} => {}\n",
         "[ 🔑  阶段3 ]".green(),
         "尝试字母加数字组合...".green()
     );
@@ -136,7 +136,7 @@ fn handle_complex_number_alphabet_decompression(
     handle_for_iter_plus_password(input_path, iter, start);
 
     eprintln!(
-        "\n\n{} => 字母加数字组合密码不正确！",
+        "\n\n{} => 字母加数字组合密码不正确！\n",
         "[ 🔔  Message ]".cyan()
     );
 }
@@ -155,7 +155,7 @@ fn handle_complex_decompression(input_path: &str, password_length_config: &Passw
     handle_for_iter_plus_password(input_path, iter, start);
 
     eprintln!(
-        "\n\n{} => 智能暴力破解密码不正确！",
+        "\n\n{} => 智能暴力破解密码不正确！\n",
         "[ 🔔  Message ]".cyan()
     );
 }
@@ -175,6 +175,11 @@ fn handle_complex_number_decompression(
     let start = Instant::now();
 
     handle_for_iter_plus_password(input_path, iter, start);
+
+    eprintln!(
+        "\n\n{} => 复杂数字密码破解失败！\n",
+        "[ 🔔  Message ]".cyan()
+    );
 }
 
 /// 简单数字破解
@@ -209,7 +214,7 @@ fn handle_simple_number_decompression(input_path: &str) {
     }
 
     eprintln!(
-        "\n\n{} => 简单数字组合密码不正确！\n",
+        "\n\n{} => 简单数字组合密码破解失败！\n",
         "[ 🔔  Message ]".cyan(),
     );
 }
