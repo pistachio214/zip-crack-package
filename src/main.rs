@@ -44,7 +44,7 @@ fn build_cli() -> Command {
         .name("pengsy")
         .version(version)
         .author("pengsy<songyang410@outlook.com>")
-        .about("解压工具箱")
+        .about("破解工具箱")
         .subcommand_required(true)
         .arg_required_else_help(true)
         // 查看当前文件夹的压缩包列表
