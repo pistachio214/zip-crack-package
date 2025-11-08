@@ -63,14 +63,12 @@ fn impl_compression_package_table_action(_: &ArgMatches) {
     if !&lines.is_empty() {
         let file_config = select_compression(&lines);
 
-        // 目标目录,以文件名为文件夹
-        let extract_to = format!("{}{}/", "./output/", file_config.dir_name);
         match file_config.extension.as_str() {
-            "zip" => try_extract_zip(&file_config.path, &extract_to),
-            "rar" => try_extract_rar(&file_config.path, &extract_to),
-            "7z" => try_extract_7z(&file_config.path, &extract_to),
-            "tar" => try_extract_tar(&file_config.path, &extract_to),
-            "gz" => try_extract_gz(&file_config.path, &extract_to),
+            "zip" => try_extract_zip(&file_config.path),
+            "rar" => try_extract_rar(&file_config.path),
+            "7z" => try_extract_7z(&file_config.path),
+            "tar" => try_extract_tar(&file_config.path),
+            "gz" => try_extract_gz(&file_config.path),
             &_ => {
                 eprintln!(
                     "\n{} => {} 类型暂时不支持,请期待后续更新～ \n",
