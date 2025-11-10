@@ -381,7 +381,7 @@ fn select_crack_module() -> CharsetModeItem {
                 }
                 num
             }
-            Err(e) => {
+            Err(_) => {
                 eprintln!(
                     "\n{} => {} 请重新输入序号 {}:",
                     "[ ❌  Error ]".red(),
