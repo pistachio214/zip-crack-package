@@ -4,7 +4,6 @@ use crate::password_module::iter::{CharsetMode, PasswordPlusGenerator};
 use crate::password_module::module::CharsetModeItem;
 use crate::write;
 use crate::zip_module::module::PasswordCheckResult;
-// use chrono::prelude::*;
 use colored::Colorize;
 use crc32fast::Hasher;
 use prettytable::{Table, row};
@@ -24,11 +23,8 @@ pub fn try_extract_zip(input_path: &str) {
             input_path.cyan(),
             "需要密码解压,请选择模式进行后续!".cyan()
         );
-        // TODO 选择特定的模式或者默认模式
         let crack_module = select_crack_module();
         handle_zip_crack(crack_module, input_path);
-
-        // zip_password_decompression(input_path);
     } else {
         eprintln!(
             "\n{} => 目标文件 {}, 可直接解压,不需要额外的密码!\n",
@@ -116,147 +112,6 @@ fn is_entry_encrypted(archive: &mut ZipArchive<File>, i: usize) -> bool {
         }
     }
 }
-
-/// 复杂密码解压
-// fn zip_password_decompression(input_path: &str) {
-//     let password_length_config = scan_min_and_max_length();
-//
-//     eprintln!("\n{} => 开始智能破解密码...\n", "[ 🔑  Trying ]".green());
-//
-//     eprintln!(
-//         "{} => {}\n",
-//         "[ 🔑  阶段1 ]".green(),
-//         "尝试简单数字组合...".green()
-//     );
-//     handle_simple_number_decompression(input_path);
-//
-//     eprintln!(
-//         "{} => {}\n",
-//         "[ 🔑  阶段2 ]".green(),
-//         "尝试复杂数字组合...".green()
-//     );
-//     handle_complex_number_decompression(input_path, &password_length_config);
-//
-//     eprintln!(
-//         "{} => {}\n",
-//         "[ 🔑  阶段3 ]".green(),
-//         "尝试字母加数字组合...".green()
-//     );
-//     handle_complex_number_alphabet_decompression(input_path, &password_length_config);
-//
-//     eprintln!(
-//         "\n{} => {}\n",
-//         "[ 🔑  阶段4 ]".green(),
-//         "尝试智能暴力破解...".green()
-//     );
-//     handle_complex_decompression(input_path, &password_length_config);
-//
-//     eprintln!(
-//         "{} => {}\n",
-//         "[ ✅  Success ]".green(),
-//         "破解流程已完成！".green()
-//     );
-// }
-
-/// 字母加数字组合破解
-// fn handle_complex_number_alphabet_decompression(
-//     input_path: &str,
-//     password_length_config: &PasswordLengthConfig,
-// ) {
-//     let iter = PasswordPlusGenerator::from_mode(
-//         CharsetMode::LettersDigits,
-//         password_length_config.min as usize,
-//         password_length_config.max as usize,
-//     );
-//
-//     // 获取当前时间点
-//     let start = Instant::now();
-//
-//     handle_for_iter_plus_password(input_path, iter, start);
-//
-//     eprintln!(
-//         "\n\n{} => 字母加数字组合密码不正确！\n",
-//         "[ 🔔  Message ]".cyan()
-//     );
-// }
-
-/// 复杂破解
-// fn handle_complex_decompression(input_path: &str, password_length_config: &PasswordLengthConfig) {
-//     let iter = PasswordPlusGenerator::from_mode(
-//         CharsetMode::AllPrintable,
-//         password_length_config.min as usize,
-//         password_length_config.max as usize,
-//     );
-//
-//     // 获取当前时间点
-//     let start = Instant::now();
-//
-//     handle_for_iter_plus_password(input_path, iter, start);
-//
-//     eprintln!(
-//         "\n\n{} => 智能暴力破解密码不正确！\n",
-//         "[ 🔔  Message ]".cyan()
-//     );
-// }
-
-/// 复杂数字破解
-// fn handle_complex_number_decompression(
-//     input_path: &str,
-//     password_length_config: &PasswordLengthConfig,
-// ) {
-//     let iter = PasswordPlusGenerator::from_mode(
-//         CharsetMode::Digits,
-//         password_length_config.min as usize,
-//         password_length_config.max as usize,
-//     );
-//
-//     // 获取当前时间点
-//     let start = Instant::now();
-//
-//     handle_for_iter_plus_password(input_path, iter, start);
-//
-//     eprintln!(
-//         "\n\n{} => 复杂数字密码破解失败！\n",
-//         "[ 🔔  Message ]".cyan()
-//     );
-// }
-
-/// 简单数字破解
-// fn handle_simple_number_decompression(input_path: &str) {
-//     let current_year = Utc::now().year();
-//     let years: Vec<String> = (0..=current_year)
-//         .map(|year| format!("{:04}", year))
-//         .collect();
-//
-//     // 获取当前时间点
-//     let start = Instant::now();
-//
-//     let mut num = 0;
-//
-//     for year in &years {
-//         num += 1;
-//
-//         let message = format!(
-//             "[ 🔑  Trying ] => 正在尝试密码: {}  [ 长度: {} 位 ] [ 总尝试: {} 个数字组合 ] [ 总耗时: {:?} ]",
-//             &year,
-//             &year.len(),
-//             &num,
-//             &start.elapsed()
-//         );
-//         write(&message);
-//
-//         if handle_verify_zip_password(input_path, year) {
-//             continue;
-//         } else {
-//             process::exit(0);
-//         }
-//     }
-//
-//     eprintln!(
-//         "\n\n{} => 简单数字组合密码破解失败！\n",
-//         "[ 🔔  Message ]".cyan(),
-//     );
-// }
 
 /// 构建一个公共循环函数
 fn handle_for_iter_plus_password(
