@@ -5,6 +5,7 @@ use prettytable::{Table, format, row};
 use std::io::stdin;
 use std::path::Path;
 use std::{fs, process};
+use prettytable::format::TableFormat;
 
 fn is_target_string_case_insensitive(input: &str) -> bool {
     let lower_input = input.to_lowercase();
@@ -117,10 +118,8 @@ pub fn get_current_compression_package() -> Vec<FileConfig> {
     lines
 }
 
-pub fn show_compression_table(lines: &Vec<FileConfig>) {
-    // 创建表格
-    let mut table = Table::new();
-    let format = format::FormatBuilder::new()
+pub fn table_format_builder() -> TableFormat {
+    format::FormatBuilder::new()
         .column_separator('|')
         .borders('|')
         .separators(
@@ -133,7 +132,14 @@ pub fn show_compression_table(lines: &Vec<FileConfig>) {
             format::LineSeparator::new('-', '+', '+', '+'),
         )
         .padding(2, 2)
-        .build();
+        .build()
+}
+
+pub fn show_compression_table(lines: &Vec<FileConfig>) {
+    // 创建表格
+    let mut table = Table::new();
+
+    let format = table_format_builder();
 
     table.set_format(format);
     // 设置标题
