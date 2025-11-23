@@ -120,7 +120,7 @@ fn handle_for_iter_plus_password(
     start: Instant,
 ) {
     // 重新计算个数
-    let mut num = 0;
+    let mut num:i64 = 0;
 
     for pwd in iter_plus {
         num += 1;
