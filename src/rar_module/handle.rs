@@ -4,8 +4,7 @@ use crate::write;
 use colored::Colorize;
 use std::process;
 use std::time::Instant;
-use unrar::error::UnrarError;
-use unrar::{Archive, UnrarResult};
+use unrar::Archive;
 
 /// TODO rar格式解压
 pub fn try_extract_rar(input_path: &str) {
