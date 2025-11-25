@@ -110,7 +110,7 @@ fn is_password_required(file_path: &str) -> bool {
             // 尝试读取第一个文件头
             match archive.read_header() {
                 Ok(_) => false, // 读取成功 → 不需要密码
-                Err(e) => true,
+                Err(_) => true,
             }
         }
         Err(_) => false,
