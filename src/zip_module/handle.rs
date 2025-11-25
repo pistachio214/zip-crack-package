@@ -57,11 +57,6 @@ fn handle_zip_crack(crack_module: CharsetModeItem, input_path: &str) {
     handle_for_iter_plus_password(input_path, iter, start);
 
     eprintln!(
-        "\n\n{} => 字母加数字组合密码不正确！\n",
-        "[ 🔔  Message ]".cyan()
-    );
-
-    eprintln!(
         "{} => {}\n",
         "[ ✅  Success ]".green(),
         "破解流程已完成！".green()
@@ -231,7 +226,7 @@ fn verify_zip_password(path: &str, password: &str) -> PasswordCheckResult {
 }
 
 /// 密码最大长度和最小长度设定
-fn scan_min_and_max_length() -> PasswordLengthConfig {
+pub fn scan_min_and_max_length() -> PasswordLengthConfig {
     println!("{}", "请输入最小密码长度:".green());
     let min_num;
     loop {
@@ -304,7 +299,7 @@ fn scan_min_and_max_length() -> PasswordLengthConfig {
 }
 
 /// 选择特定的模式或者默认模式
-fn select_crack_module() -> CharsetModeItem {
+pub fn select_crack_module() -> CharsetModeItem {
     // 创建表格
     let mut table = Table::new();
     let format = table_format_builder();
